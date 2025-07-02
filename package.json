@@ -1,0 +1,21 @@
+{
+  "name": "pokemon-wasm-tournament",
+  "version": "0.1.0",
+  "main": "app/main.js",
+  "author": "Santiael",
+  "license": "MIT",
+  "description": "Comparison of JS and Wasm performance using Pokémon data.",
+  "engines": {
+    "node": "22.16.x",
+    "pnpm": ">= 10"
+  },
+  "packageManager": "pnpm@10.12.1+sha1.4bd977ce548dc9fcd1ca0c62838c55646cea6847",
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "globals": "^16.3.0",
+    "prettier": "3.6.2"
+  }
+}

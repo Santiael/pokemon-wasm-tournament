@@ -1,0 +1,13 @@
+### Project ###
+build/
+
+### Node ###
+node_modules/
+
+### Rust ###
+debug/
+target/
+
+### macOS ###
+# General
+.DS_Store
