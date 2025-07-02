@@ -1,0 +1,3 @@
+[submodule "vendors/poke-api-data"]
+	path = vendors/poke-api-data
+	url = git@github.com:PokeAPI/api-data.git
