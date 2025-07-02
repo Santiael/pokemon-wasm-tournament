@@ -1,0 +1,10 @@
+{
+  "name": "transform-data-js",
+  "main": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ]
+}

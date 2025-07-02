@@ -1,0 +1,11 @@
+{
+  "name": "transform-data-wasm",
+  "main": "build/transform_data_wasm.js",
+  "type": "commonjs",
+  "types": "build/transform_data_wasm.d.ts",
+  "files": [
+    "build/transform_data_wasm_bg.wasm",
+    "build/transform_data_wasm.js",
+    "build/transform_data_wasm.d.ts"
+  ]
+}

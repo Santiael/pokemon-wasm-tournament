@@ -27,6 +27,19 @@ importers:
         specifier: 3.6.2
         version: 3.6.2
 
+  app:
+    dependencies:
+      transform-data-js:
+        specifier: link:../modules/javascript/transform-data-js
+        version: link:../modules/javascript/transform-data-js
+      transform-data-wasm:
+        specifier: link:../modules/wasm/transform-data-wasm
+        version: link:../modules/wasm/transform-data-wasm
+
+  modules/javascript/transform-data-js: {}
+
+  modules/wasm/transform-data-wasm: {}
+
 packages:
 
   '@eslint-community/eslint-utils@4.7.0':

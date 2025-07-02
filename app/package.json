@@ -1,0 +1,9 @@
+{
+  "name": "app",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "transform-data-js": "link:../modules/javascript/transform-data-js",
+    "transform-data-wasm": "link:../modules/wasm/transform-data-wasm"
+  }
+}
