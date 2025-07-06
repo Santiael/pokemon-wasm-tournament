@@ -12,4 +12,15 @@ export default defineConfig([
   { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: globals.node } },
   globalIgnores(["**/node_modules/", "**/build/", "**/vendors/"]),
   eslintPluginPrettierRecommended,
+  {
+    rules: {
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ]);
