@@ -68,11 +68,15 @@ export async function getPokeApiData(url) {
   return JSON.parse(file.toString());
 }
 
-export async function getPokeApiModule(moduleUrl) {
+export async function getPokeApiModule(
+  moduleUrl,
+  { sliceStart, sliceEnd } = {}
+) {
   const moduleIndex = await getPokeApiData(moduleUrl);
 
   const filesPromises = moduleIndex.results
     .sort()
+    .slice(sliceStart || 0, sliceEnd)
     .map(({ url }) => getPokeApiData(url));
 
   const results = await Promise.allSettled(filesPromises);
