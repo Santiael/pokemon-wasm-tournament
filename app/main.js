@@ -1,7 +1,4 @@
-import {
-  calculatePokemonPower,
-  calculatePokemonStamina,
-} from "transform-data-js";
+import { isPokemonStrongerThan } from "transform-data-js";
 
 import { getPokeApiData, getPokeApiModule, pokeApiModulesUrl } from "./api.js";
 
@@ -27,34 +24,15 @@ async function App() {
   const pokemon1 = pokemons[pokemon1Index];
   const pokemon2 = pokemons[pokemon2Index];
 
-  const pokemon1Power = calculatePokemonPower(pokemon1);
-  const pokemon1Stamina = calculatePokemonStamina(pokemon1);
+  const isPokemon1Stronger = isPokemonStrongerThan(pokemon1, pokemon2);
 
-  const pokemon2Power = calculatePokemonPower(pokemon2);
-  const pokemon2Stamina = calculatePokemonStamina(pokemon2);
+  console.log(`${pokemon1.name} vs ${pokemon2.name}`);
 
-  const pokemon1Points = pokemon1Stamina - pokemon2Power;
-  const pokemon2Points = pokemon2Stamina - pokemon1Power;
-
-  if (pokemon1Points > pokemon2Points) {
+  if (isPokemon1Stronger) {
     console.log(pokemon1.name, "wins");
   } else {
     console.log(pokemon2.name, "wins");
   }
-
-  console.group("pokemon1");
-  console.log("name:", pokemon1.name);
-  console.table(pokemon1.stats);
-  console.log("power:", pokemon1Power);
-  console.log("stamina:", pokemon1Stamina);
-  console.groupEnd("pokemon1");
-
-  console.group("pokemon2");
-  console.log("name:", pokemon2.name);
-  console.log("power:", pokemon2Power);
-  console.log("stamina:", pokemon2Stamina);
-  console.table(pokemon2.stats);
-  console.groupEnd("pokemon2");
 }
 
 App();
