@@ -29,12 +29,14 @@ importers:
 
   app:
     dependencies:
-      transform-data-js:
-        specifier: link:../modules/javascript/transform-data-js
-        version: link:../modules/javascript/transform-data-js
+      compare-pokemon-data-js:
+        specifier: link:../modules/javascript/compare-pokemon-data-js
+        version: link:../modules/javascript/compare-pokemon-data-js
       transform-data-wasm:
         specifier: link:../modules/wasm/transform-data-wasm
         version: link:../modules/wasm/transform-data-wasm
+
+  modules/javascript/compare-pokemon-data-js: {}
 
   modules/javascript/transform-data-js: {}
 

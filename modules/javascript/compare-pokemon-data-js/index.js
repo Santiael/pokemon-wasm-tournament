@@ -5,7 +5,7 @@ function sumPokemonStats(pokemon, statusNames = []) {
 }
 
 // power = (attack + special-attack) * (1 + speed/100)
-export function calculatePokemonPower(pokemon) {
+function calculatePokemonPower(pokemon) {
   const totalAttack = sumPokemonStats(pokemon, ["attack", "special-attack"]);
 
   const speedStats = pokemon.stats.find(({ stat }) => stat.name === "speed");
@@ -15,11 +15,11 @@ export function calculatePokemonPower(pokemon) {
 }
 
 // stamina = hp + defense + special-defense
-export function calculatePokemonStamina(pokemon) {
+function calculatePokemonStamina(pokemon) {
   return sumPokemonStats(pokemon, ["hp", "defense", "special-defense"]);
 }
 
-export function isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
+function isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
   const chosenPokemonPower = calculatePokemonPower(chosenPokemon);
   const chosenPokemonStamina = calculatePokemonStamina(chosenPokemon);
 
@@ -30,4 +30,29 @@ export function isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
   const rivalPokemonPoints = rivalPokemonStamina - chosenPokemonPower;
 
   return chosenPokemonPoints > rivalPokemonPoints;
+}
+
+export function comparePokemons(pokemons) {
+  const pokemonVictoriesArray = [];
+
+  pokemons.forEach((chosenPokemon) => {
+    const pokemonVictories = {
+      name: chosenPokemon.name,
+      score: 0,
+    };
+
+    pokemons.forEach((rivalPokemon) => {
+      if (isPokemonStrongerThan(chosenPokemon, rivalPokemon)) {
+        pokemonVictories.score += 1;
+      }
+    });
+
+    pokemonVictoriesArray.push(pokemonVictories);
+  });
+
+  const orderedPokemonVictoriesArray = pokemonVictoriesArray.sort(
+    (a, b) => b.score - a.score
+  );
+
+  console.table(orderedPokemonVictoriesArray.slice(0, 10));
 }

@@ -13,6 +13,4 @@ type Pokemon = {
   stats: Array<PokemonStats>;
 }
 
-export function calculatePokemonPower(pokemon: Pokemon): number;
-export function calculatePokemonStamina(pokemon: Pokemon): number;
-export function isPokemonStrongerThan(chosenPokemon: Pokemon, rivalPokemon: Pokemon): boolean;
+export function comparePokemons(pokemons: Pokemon[]): void;

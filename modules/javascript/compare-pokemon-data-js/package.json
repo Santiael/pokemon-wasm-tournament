@@ -1,5 +1,5 @@
 {
-  "name": "transform-data-js",
+  "name": "compare-pokemon-data-js",
   "main": "index.js",
   "type": "module",
   "types": "index.d.ts",
