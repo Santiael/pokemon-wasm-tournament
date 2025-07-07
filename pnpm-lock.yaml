@@ -32,15 +32,13 @@ importers:
       compare-pokemon-data-js:
         specifier: link:../modules/javascript/compare-pokemon-data-js
         version: link:../modules/javascript/compare-pokemon-data-js
-      transform-data-wasm:
-        specifier: link:../modules/wasm/transform-data-wasm
-        version: link:../modules/wasm/transform-data-wasm
+      compare-pokemon-data-wasm:
+        specifier: link:../modules/wasm/compare-pokemon-data-wasm
+        version: link:../modules/wasm/compare-pokemon-data-wasm
 
   modules/javascript/compare-pokemon-data-js: {}
 
-  modules/javascript/transform-data-js: {}
-
-  modules/wasm/transform-data-wasm: {}
+  modules/wasm/compare-pokemon-data-wasm: {}
 
 packages:
 
