@@ -2,6 +2,10 @@
 @default:
   just --list --unsorted
 
+setup:
+  pnpm install
+  just build-wasm --prod --opt
+
 run:
   node app/main.js
 
