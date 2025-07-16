@@ -1,5 +1,4 @@
 use wasm_bindgen::prelude::*;
-use web_sys::console;
 
 #[allow(dead_code)]
 #[wasm_bindgen]
@@ -51,6 +50,20 @@ impl Pokemon {
     }
 }
 
+#[wasm_bindgen]
+pub struct PokemonVictory {
+    name: String,
+    pub score: i32,
+}
+
+#[wasm_bindgen]
+impl PokemonVictory {
+    #[wasm_bindgen(getter)]
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+}
+
 fn sum_pokemon_stats(pokemon: &Pokemon, stat_names: &[&str]) -> f64 {
     pokemon
         .stats
@@ -93,13 +106,8 @@ fn is_pokemon_stronger_than(chosen_pokemon: &Pokemon, rival_pokemon: &Pokemon) -
     chosen_pokemon_points > rival_pokemon_points
 }
 
-struct PokemonVictory {
-    name: String,
-    score: i32,
-}
-
 #[wasm_bindgen]
-pub fn compare_pokemons(pokemons: Vec<Pokemon>) {
+pub fn compare_pokemons(pokemons: Vec<Pokemon>) -> Vec<PokemonVictory> {
     let mut pokemon_victories_array: Vec<PokemonVictory> = Vec::new();
 
     for chosen_pokemon in &pokemons {
@@ -117,10 +125,5 @@ pub fn compare_pokemons(pokemons: Vec<Pokemon>) {
 
     pokemon_victories_array.sort_by(|a, b| b.score.cmp(&a.score));
 
-    for pokemon_index in 0..10 {
-        console::log_2(
-            &JsValue::from_str(pokemon_victories_array[pokemon_index].name.as_str()),
-            &JsValue::from_f64(pokemon_victories_array[pokemon_index].score as f64),
-        );
-    }
+    pokemon_victories_array
 }

@@ -54,5 +54,5 @@ export function comparePokemons(pokemons) {
     (a, b) => b.score - a.score
   );
 
-  console.table(orderedPokemonVictoriesArray.slice(0, 10));
+  return orderedPokemonVictoriesArray;
 }
