@@ -42,16 +42,13 @@ just run
 Run the following command in the project's root directory:
 
 ```sh
-just build-wasm [--prod] [--opt]
+just build-wasm [--debug] [--no-opt]
 ```
 
 ### Flags
 
-  - `--prod`: Builds the Rust code with optimizations (`cargo build --release`).
-      - Release profile settings:
-          - `lto = true`
-          - `opt-level = 's'`
-  - `--opt`: Applies optimizations to the Wasm file (`wasm-opt -O3`).
+  - `--debug`: Builds the Rust code without `--release` flag.
+  - `--no-opt`: Skip running `wasm-opt -O3` optimizations to the Wasm file.
 
 > Learn more about Wasm optimization at:
 > [Shrinking .wasm Code Size](https://rustwasm.github.io/docs/book/reference/code-size.html#shrinking-wasm-code-size)

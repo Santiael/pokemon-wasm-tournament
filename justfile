@@ -4,7 +4,7 @@
 
 setup:
   pnpm install
-  just build-wasm --prod --opt
+  just build-wasm
 
 run:
   node app/main.js
@@ -27,20 +27,20 @@ build-wasm *FLAGS:
 
   rm -rf build
 
-  if [ $(verifyFlag --prod) ]; then
-      echo "[build-wasm] building target release"
-      cargo build --release
-      target_folder="release"
-  else
+  if [ $(verifyFlag --debug) ]; then
       echo "[build-wasm] building target debug"
       cargo build
       target_folder="debug"
+  else
+      echo "[build-wasm] building target release"
+      cargo build --release
+      target_folder="release"
   fi
 
   wasm-bindgen --target nodejs --out-dir build \
     "./target/wasm32-unknown-unknown/${target_folder}/compare_pokemon_data_wasm.wasm"
 
-  if [ $(verifyFlag --opt) ]; then
+  if [ ! $(verifyFlag --no-opt) ]; then
     echo "[build-wasm] running wasm-opt"
     wasm-opt -O3 build/compare_pokemon_data_wasm_bg.wasm -o build/compare_pokemon_data_wasm_bg.wasm
   fi
