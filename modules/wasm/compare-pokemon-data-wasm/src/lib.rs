@@ -35,6 +35,7 @@ impl PokemonStats {
     }
 }
 
+#[allow(dead_code)]
 #[wasm_bindgen]
 pub struct Pokemon {
     id: u32,
@@ -90,10 +91,6 @@ fn calculate_pokemon_stamina(pokemon: &Pokemon) -> f64 {
 }
 
 fn is_pokemon_stronger_than(chosen_pokemon: &Pokemon, rival_pokemon: &Pokemon) -> bool {
-    if chosen_pokemon.id == rival_pokemon.id && chosen_pokemon.name == rival_pokemon.name {
-        return false;
-    }
-
     let chosen_pokemon_power = calculate_pokemon_power(chosen_pokemon);
     let chosen_pokemon_stamina = calculate_pokemon_stamina(chosen_pokemon);
 
