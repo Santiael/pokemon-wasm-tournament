@@ -8,42 +8,47 @@ import {
 
 import { getPokeApiModule, pokeApiModulesUrl } from "./api.js";
 
+function meassureTime(label, callback, timesToRun) {
+  const runs = [];
+  const times = timesToRun || 10;
+  console.time(`[${label}] Total run`);
+  for (let i = 0; i < times; i++) {
+    let startTime = Date.now();
+    callback();
+    runs.push(Date.now() - startTime);
+  }
+  console.timeEnd(`[${label}] Total run`);
+
+  const avarageTime = runs.reduce((acc, cur) => acc + cur) / times;
+  console.log(`[${label}] Average run:`, `${avarageTime}ms`);
+}
+
 async function App() {
   const pokemons = await getPokeApiModule(pokeApiModulesUrl.pokemon);
 
-  const timesToRun = 100;
-  const jsRuns = [];
-  const wasmRuns = [];
+  meassureTime(
+    "JS",
+    () => {
+      comparePokemons(pokemons);
+    },
+    100
+  );
 
-  for (let i = 0; i < timesToRun; i++) {
-    let startTime = Date.now();
-
-    comparePokemons(pokemons);
-
-    jsRuns.push(Date.now() - startTime);
-  }
-
-  for (let i = 0; i < timesToRun; i++) {
-    let startTime = Date.now();
-
-    const pokemonsForWasm = pokemons.map(({ id, name, stats }) => {
-      const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
-        const statObj = new Stat(stat.name, stat.url);
-        return new PokemonStats(base_stat, effort, statObj);
+  meassureTime(
+    "Wasm",
+    () => {
+      const pokemonsForWasm = pokemons.map(({ id, name, stats }) => {
+        const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
+          const statObj = new Stat(stat.name, stat.url);
+          return new PokemonStats(base_stat, effort, statObj);
+        });
+        return new Pokemon(id, name, pokemonStats);
       });
-      return new Pokemon(id, name, pokemonStats);
-    });
 
-    compare_pokemons(pokemonsForWasm);
-
-    wasmRuns.push(Date.now() - startTime);
-  }
-
-  const jsResults = jsRuns.reduce((acc, cur) => acc + cur) / timesToRun;
-  const wasmResults = wasmRuns.reduce((acc, cur) => acc + cur) / timesToRun;
-
-  console.log("JS run average:", jsResults);
-  console.log("Wasm run average:", wasmResults);
+      compare_pokemons(pokemonsForWasm);
+    },
+    100
+  );
 }
 
 App();
