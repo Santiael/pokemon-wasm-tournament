@@ -103,13 +103,12 @@ fn is_pokemon_stronger_than(chosen_pokemon: &Pokemon, rival_pokemon: &Pokemon) -
     chosen_pokemon_points > rival_pokemon_points
 }
 
-#[wasm_bindgen]
-pub fn compare_pokemons(pokemons: Vec<Pokemon>) -> Vec<PokemonVictory> {
+pub fn rank_pokemon_victories(pokemons: &Vec<Pokemon>) -> Vec<PokemonVictory> {
     let mut pokemon_victories_array: Vec<PokemonVictory> = Vec::new();
 
-    for chosen_pokemon in &pokemons {
+    for chosen_pokemon in pokemons {
         let mut victories: i32 = 0;
-        for rival_pokemon in &pokemons {
+        for rival_pokemon in pokemons {
             if is_pokemon_stronger_than(chosen_pokemon, rival_pokemon) {
                 victories += 1;
             }
@@ -123,4 +122,16 @@ pub fn compare_pokemons(pokemons: Vec<Pokemon>) -> Vec<PokemonVictory> {
     pokemon_victories_array.sort_by(|a, b| b.score.cmp(&a.score));
 
     pokemon_victories_array
+}
+
+#[wasm_bindgen]
+pub fn compare_pokemons(pokemons: Vec<Pokemon>) {
+    rank_pokemon_victories(&pokemons);
+}
+
+#[wasm_bindgen]
+pub fn compare_pokemons_loop(pokemons: Vec<Pokemon>, times: i32) {
+    for _ in 0..times {
+        rank_pokemon_victories(&pokemons);
+    }
 }
