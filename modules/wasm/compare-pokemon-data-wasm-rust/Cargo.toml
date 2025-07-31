@@ -1,5 +1,5 @@
 [package]
-name = "compare-pokemon-data-wasm"
+name = "compare-pokemon-data-wasm-rust"
 version = "0.1.0"
 edition = "2024"
 

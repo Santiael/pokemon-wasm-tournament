@@ -4,6 +4,6 @@
   "type": "module",
   "dependencies": {
     "compare-pokemon-data-js": "link:../modules/javascript/compare-pokemon-data-js",
-    "compare-pokemon-data-wasm": "link:../modules/wasm/compare-pokemon-data-wasm"
+    "compare-pokemon-data-wasm-rust": "link:../modules/wasm/compare-pokemon-data-wasm-rust"
   }
 }

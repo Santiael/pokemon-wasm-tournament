@@ -9,7 +9,7 @@ setup:
 run:
   node app/main.js
 
-[working-directory: 'modules/wasm/compare-pokemon-data-wasm']
+[working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
 build-wasm *FLAGS:
   #!/usr/bin/env sh
   set -e
@@ -38,9 +38,9 @@ build-wasm *FLAGS:
   fi
 
   wasm-bindgen --target nodejs --out-dir build \
-    "./target/wasm32-unknown-unknown/${target_folder}/compare_pokemon_data_wasm.wasm"
+    "./target/wasm32-unknown-unknown/${target_folder}/compare_pokemon_data_wasm_rust.wasm"
 
   if [ ! $(verifyFlag --no-opt) ]; then
     echo "[build-wasm] running wasm-opt"
-    wasm-opt -O3 build/compare_pokemon_data_wasm_bg.wasm -o build/compare_pokemon_data_wasm_bg.wasm
+    wasm-opt -O3 build/compare_pokemon_data_wasm_rust_bg.wasm -o build/compare_pokemon_data_wasm_rust_bg.wasm
   fi
