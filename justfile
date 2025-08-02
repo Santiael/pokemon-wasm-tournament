@@ -9,8 +9,12 @@ setup:
 run:
   node app/main.js
 
+
+build-wasm:
+  just build-wasm-rust
+
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
-build-wasm *FLAGS:
+build-wasm-rust *FLAGS:
   #!/usr/bin/env sh
   set -e
 
@@ -25,7 +29,7 @@ build-wasm *FLAGS:
     done
   }
 
-  rm -rf build
+  rm -rf dist
 
   if [ $(verifyFlag --debug) ]; then
       echo "[build-wasm] building target debug"
@@ -37,10 +41,14 @@ build-wasm *FLAGS:
       target_folder="release"
   fi
 
-  wasm-bindgen --target nodejs --out-dir build \
+  wasm-bindgen --target nodejs --out-dir dist \
     "./target/wasm32-unknown-unknown/${target_folder}/compare_pokemon_data_wasm_rust.wasm"
 
   if [ ! $(verifyFlag --no-opt) ]; then
     echo "[build-wasm] running wasm-opt"
-    wasm-opt -O3 build/compare_pokemon_data_wasm_rust_bg.wasm -o build/compare_pokemon_data_wasm_rust_bg.wasm
+    wasm-opt -O3 dist/compare_pokemon_data_wasm_rust_bg.wasm -o dist/compare_pokemon_data_wasm_rust_bg.wasm
   fi
+
+  cp package/package.json dist
+
+

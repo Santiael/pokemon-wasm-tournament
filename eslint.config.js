@@ -10,7 +10,7 @@ export default defineConfig([
     extends: ["js/recommended"],
   },
   { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: globals.node } },
-  globalIgnores(["**/node_modules/", "**/build/", "**/vendors/"]),
+  globalIgnores(["**/node_modules/", "**/dist/", "**/vendors/"]),
   eslintPluginPrettierRecommended,
   {
     rules: {

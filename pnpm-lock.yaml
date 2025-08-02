@@ -33,12 +33,10 @@ importers:
         specifier: link:../modules/javascript/compare-pokemon-data-js
         version: link:../modules/javascript/compare-pokemon-data-js
       compare-pokemon-data-wasm-rust:
-        specifier: link:../modules/wasm/compare-pokemon-data-wasm-rust
-        version: link:../modules/wasm/compare-pokemon-data-wasm-rust
+        specifier: link:../modules/wasm/compare-pokemon-data-wasm-rust/dist
+        version: link:../modules/wasm/compare-pokemon-data-wasm-rust/dist
 
   modules/javascript/compare-pokemon-data-js: {}
-
-  modules/wasm/compare-pokemon-data-wasm-rust: {}
 
 packages:
 
