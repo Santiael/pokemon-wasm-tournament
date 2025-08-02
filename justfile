@@ -9,9 +9,9 @@ setup:
 run:
   node app/main.js
 
-
 build-wasm:
   just build-wasm-rust
+  just build-wasm-go
 
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
 build-wasm-rust *FLAGS:
@@ -49,6 +49,10 @@ build-wasm-rust *FLAGS:
     wasm-opt -O3 dist/compare_pokemon_data_wasm_rust_bg.wasm -o dist/compare_pokemon_data_wasm_rust_bg.wasm
   fi
 
-  cp package/package.json dist
+[working-directory: 'modules/wasm/compare-pokemon-data-wasm-go']
+build-wasm-go:
+  rm -rf dist
 
+  GOOS=js GOARCH=wasm go build -o dist/main.wasm .
+  cp -r package/* dist
 

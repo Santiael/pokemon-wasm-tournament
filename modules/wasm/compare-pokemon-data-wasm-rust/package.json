@@ -1,0 +1,9 @@
+{
+  "name": "compare-pokemon-data-wasm-rust",
+  "main": "dist/compare_pokemon_data_wasm_rust.js",
+  "type": "commonjs",
+  "types": "dist/compare_pokemon_data_wasm_rust.d.ts",
+  "files": [
+    "dist/"
+  ]
+}

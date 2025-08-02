@@ -1,11 +1,12 @@
 import { comparePokemons } from "compare-pokemon-data-js";
 import {
   compare_pokemons,
-  compare_pokemons_loop,
+  // compare_pokemons_loop,
   Pokemon,
   PokemonStats,
   Stat,
 } from "compare-pokemon-data-wasm-rust";
+import WasmGo from "compare-pokemon-data-wasm-go";
 
 import { getPokeApiModule, pokeApiModulesUrl } from "./api.js";
 
@@ -28,7 +29,7 @@ function meassureTime(label, callback, timesToRun = 1) {
 
 async function App() {
   const pokemons = await getPokeApiModule(pokeApiModulesUrl.pokemon);
-  const timesToRun = 100;
+  const timesToRun = 10;
 
   meassureTime(
     "JS",
@@ -54,17 +55,25 @@ async function App() {
     timesToRun
   );
 
-  meassureTime("Wasm - Rust (loop into wasm)", () => {
-    const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
-      const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
-        const statObj = new Stat(stat.name, stat.url);
-        return new PokemonStats(base_stat, effort, statObj);
-      });
-      return new Pokemon(id, name, pokemonStats);
-    });
+  // meassureTime("Wasm - Rust (loop into wasm)", () => {
+  //   const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
+  //     const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
+  //       const statObj = new Stat(stat.name, stat.url);
+  //       return new PokemonStats(base_stat, effort, statObj);
+  //     });
+  //     return new Pokemon(id, name, pokemonStats);
+  //   });
 
-    compare_pokemons_loop(pokemonsForWasmRust, timesToRun);
-  });
+  //   compare_pokemons_loop(pokemonsForWasmRust, timesToRun);
+  // });
+
+  meassureTime(
+    "Wasm - Go",
+    () => {
+      WasmGo.comparePokemons(pokemons);
+    },
+    timesToRun
+  );
 }
 
 App();

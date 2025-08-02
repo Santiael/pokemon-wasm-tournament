@@ -1,0 +1,8 @@
+{
+  "name": "compare-pokemon-data-wasm-go",
+  "main": "dist/main.js",
+  "type": "module",
+  "files": [
+    "dist/"
+  ]
+}
