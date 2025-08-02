@@ -18,6 +18,8 @@ Please ensure you have the following programs installed to run the project:
   - [Node](https://nodejs.org/en/download)
   - [pnpm](https://pnpm.io/installation)
   - [Rust](https://www.rust-lang.org/tools/install)
+  - [wasm-bindgen-cli](https://github.com/wasm-bindgen/wasm-bindgen)
+  - [Go](https://go.dev/doc/install)
   - [Just](https://just.systems/man/en/packages.html)
   - [binaryen](https://github.com/WebAssembly/binaryen/releases)
 
@@ -37,12 +39,20 @@ Run the following command in the project's root directory:
 just run
 ```
 
-## Building the Wasm Module
+## Building all the Wasm modules
 
 Run the following command in the project's root directory:
 
 ```sh
-just build-wasm [--debug] [--no-opt]
+just build-wasm
+```
+
+## Building only the Wasm Rust module
+
+Run the following command in the project's root directory:
+
+```sh
+just build-wasm-rust [--debug] [--no-opt]
 ```
 
 ### Flags
@@ -52,3 +62,11 @@ just build-wasm [--debug] [--no-opt]
 
 > Learn more about Wasm optimization at:
 > [Shrinking .wasm Code Size](https://rustwasm.github.io/docs/book/reference/code-size.html#shrinking-wasm-code-size)
+
+## Building only the Wasm Go module
+
+Run the following command in the project's root directory:
+
+```sh
+just build-wasm-go
+```
