@@ -1,155 +1,171 @@
 package main
 
 import (
-	"slices"
 	"sort"
 	"syscall/js"
 )
 
 type Pokemon struct {
-	Name  string `json:"name"`
-	Stats []Stat `json:"stats"`
+	name  string
+	stats []PokemonStat
+}
+
+type PokemonStat struct {
+	baseStat int
+	stat     Stat
 }
 
 type Stat struct {
-	BaseStat int      `json:"base_stat"`
-	StatInfo StatInfo `json:"stat"`
-}
-
-type StatInfo struct {
-	Name string `json:"name"`
+	name string
 }
 
 type PokemonVictory struct {
-	Name  string
-	Score int
+	name  string
+	score int
 }
 
-func createPokemon(pokemonJs js.Value) Pokemon {
-	statsJs := pokemonJs.Get("stats")
-
-	name := pokemonJs.Get("name").String()
-	stats := make([]Stat, 0, statsJs.Length())
-
-	for i := 0; i < statsJs.Length(); i++ {
-		stat := createStat(statsJs.Index(i))
-		stats = append(stats, stat)
-	}
-
-	return Pokemon{
-		Name:  name,
-		Stats: stats,
-	}
+type PokemonWithScore struct {
+	pokemon *Pokemon
+	power   float64
+	stamina float64
 }
 
-func createStat(statJs js.Value) Stat {
-	statInfoJs := statJs.Get("stat")
+func comparePokemons(_ js.Value, args []js.Value) interface{} {
+	pokemons := decodePokemons(args[0])
 
-	baseStat := statJs.Get("base_stat").Int()
-	statInfo := createStatInfo(statInfoJs)
+	result := rankPokemonVictories(pokemons)
 
-	return Stat{
-		BaseStat: baseStat,
-		StatInfo: statInfo,
-	}
+	return encodePokemonVictories(result)
 }
 
-func createStatInfo(statInfoJs js.Value) StatInfo {
-	name := statInfoJs.Get("name").String()
+func decodePokemons(list js.Value) []Pokemon {
+	size := list.Length()
+	pokemons := make([]Pokemon, size)
 
-	return StatInfo{
-		Name: name,
-	}
-}
+	for i := 0; i < size; i++ {
+		obj := list.Index(i)
 
-func sumPokemonStats(pokemon Pokemon, statNames []string) int {
-	sum := 0
+		pokemons[i] = Pokemon{
+			name: obj.Get("name").String(),
+		}
+		pokemon := &pokemons[i]
 
-	for _, s := range pokemon.Stats {
-		if slices.Contains(statNames, s.StatInfo.Name) {
-			sum += s.BaseStat
+		obj_stats := obj.Get("stats")
+		stats_size := obj_stats.Length()
+		pokemon.stats = make([]PokemonStat, stats_size)
+
+		for j := 0; j < stats_size; j++ {
+			obj_stat := obj_stats.Index(j)
+
+			pokemon.stats[j] = PokemonStat{
+				baseStat: obj_stat.Get("base_stat").Int(),
+				stat: Stat{
+					name: obj_stat.Get("stat").Get("name").String(),
+				},
+			}
 		}
 	}
 
-	return sum
+	return pokemons
 }
 
-func calculatePokemonPower(pokemon Pokemon) float64 {
-	totalAttack := sumPokemonStats(pokemon, []string{"attack", "special-attack"})
+func encodePokemonVictories(result []PokemonVictory) js.Value {
+	global := js.Global()
+	jsArray := global.Get("Array").New(len(result))
 
-	speed := 0
-
-	for _, s := range pokemon.Stats {
-		if s.StatInfo.Name == "speed" {
-			speed = s.BaseStat
-			break
-		}
+	for i, p := range result {
+		obj := global.Get("Object").New()
+		obj.Set("name", p.name)
+		obj.Set("score", p.score)
+		jsArray.SetIndex(i, obj)
 	}
 
-	return float64(totalAttack) * (1 + float64(speed)/100.0)
-}
-
-func calculatePokemonStamina(pokemon Pokemon) int {
-	return sumPokemonStats(pokemon, []string{"hp", "defense", "special-defense"})
-}
-
-func isPokemonStrongerThan(chosenPokemon, rivalPokemon Pokemon) bool {
-	chosenPokemonPower := calculatePokemonPower(chosenPokemon)
-	chosenPokemonStamina := calculatePokemonStamina(chosenPokemon)
-
-	rivalPokemonPower := calculatePokemonPower(rivalPokemon)
-	rivalPokemonStamina := calculatePokemonStamina(rivalPokemon)
-
-	chosenPokemonPoints := float64(chosenPokemonStamina) - rivalPokemonPower
-	rivalPokemonPoints := float64(rivalPokemonStamina) - chosenPokemonPower
-
-	return chosenPokemonPoints > rivalPokemonPoints
+	return jsArray
 }
 
 func rankPokemonVictories(pokemons []Pokemon) []PokemonVictory {
-	pokemonVictoriesArray := make([]PokemonVictory, 0, len(pokemons))
+	precomputed := precomputeScores(pokemons)
+	pokemonVictoriesArray := make([]PokemonVictory, len(precomputed))
 
-	for _, chosenPokemon := range pokemons {
-		victories := PokemonVictory{Name: chosenPokemon.Name}
+	for i, chosen := range precomputed {
+		victory := PokemonVictory{name: chosen.pokemon.name}
 
-		for _, rivalPokemon := range pokemons {
-			if isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
-				victories.Score++
+		for _, rival := range precomputed {
+			if (chosen.stamina - rival.power) > (rival.stamina - chosen.power) {
+				victory.score++
 			}
 		}
 
-		pokemonVictoriesArray = append(pokemonVictoriesArray, victories)
+		pokemonVictoriesArray[i] = victory
 	}
 
 	sort.Slice(pokemonVictoriesArray, func(i, j int) bool {
-		return pokemonVictoriesArray[i].Score > pokemonVictoriesArray[j].Score
+		return pokemonVictoriesArray[i].score > pokemonVictoriesArray[j].score
 	})
 
 	return pokemonVictoriesArray
 }
 
-func comparePokemons(_ js.Value, args []js.Value) any {
-	pokemonsJs := args[0]
+func precomputeScores(pokemons []Pokemon) []PokemonWithScore {
+	result := make([]PokemonWithScore, len(pokemons))
 
-	pokemons := make([]Pokemon, 0, pokemonsJs.Length())
+	for i := range pokemons {
+		pokemon := &pokemons[i]
 
-	for i := 0; i < pokemonsJs.Length(); i++ {
-		pokemonJS := pokemonsJs.Index(i)
-		pokemon := createPokemon(pokemonJS)
-		pokemons = append(pokemons, pokemon)
+		result[i] = PokemonWithScore{
+			pokemon: pokemon,
+			power:   calculatePokemonPower(pokemon),
+			stamina: calculatePokemonStamina(pokemon),
+		}
+	}
+	return result
+}
+
+func calculatePokemonPower(pokemon *Pokemon) float64 {
+	totalAttack := sumPokemonStats(pokemon, []string{"attack", "special-attack"})
+	speed := 0.0
+
+	for _, s := range pokemon.stats {
+		if s.stat.name == "speed" {
+			speed = float64(s.baseStat)
+			break
+		}
 	}
 
-	rankPokemonVictories(pokemons)
+	return totalAttack * (1.0 + speed/100.0)
+}
 
-	return nil
+func calculatePokemonStamina(pokemon *Pokemon) float64 {
+	return sumPokemonStats(pokemon, []string{"hp", "defense", "special-defense"})
+}
+
+func sumPokemonStats(pokemon *Pokemon, statNames []string) float64 {
+	statMap := make(map[string]struct{}, len(statNames))
+
+	for _, name := range statNames {
+		statMap[name] = struct{}{}
+	}
+
+	sum := 0
+
+	for _, s := range pokemon.stats {
+		if _, ok := statMap[s.stat.name]; ok {
+			sum += s.baseStat
+		}
+	}
+
+	return float64(sum)
 }
 
 func main() {
-	wasmObject := js.Global().Get("Object").New()
+	c := make(chan struct{})
 
+	global := js.Global()
+
+	wasmObject := global.Get("Object").New()
 	wasmObject.Set("comparePokemons", js.FuncOf(comparePokemons))
 
-	js.Global().Set("wasm", wasmObject)
+	global.Set("wasm", wasmObject)
 
-	<-make(chan struct{})
+	<-c
 }

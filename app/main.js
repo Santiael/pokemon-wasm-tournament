@@ -33,10 +33,13 @@ async function App() {
   console.log('Total Pokemons:', pokemons.length);
   console.log()
 
+  const results = new Map();
+
   meassureTime(
     "JS",
     () => {
-      comparePokemons(pokemons)
+      const res = comparePokemons(pokemons)
+      if (!results.has("JS")) results.set("JS", res[0]);
     },
     timesToRun
   );
@@ -52,7 +55,8 @@ async function App() {
         return new WasmRust.Pokemon(id, name, pokemonStats);
       });
 
-      WasmRust.compare_pokemons(pokemonsForWasmRust);
+      const res = WasmRust.compare_pokemons(pokemonsForWasmRust);
+      if (!results.has("Wasm - Rust")) results.set("Wasm - Rust", { name: res[0].name, score: res[0].score });
     },
     timesToRun,
     WasmRust.wasmSize
@@ -73,7 +77,8 @@ async function App() {
   meassureTime(
     "Wasm - Go",
     () => {
-      WasmGo.comparePokemons(pokemons);
+      const res = WasmGo.comparePokemons(pokemons);
+      if (!results.has("Wasm - Go")) results.set("Wasm - Go", res[0]);
     },
     timesToRun,
     WasmGo.wasmSize
@@ -82,11 +87,15 @@ async function App() {
   meassureTime(
     "Wasm - C",
     () => {
-      WasmC.compare_pokemons(pokemons);
+      const res = WasmC.compare_pokemons(pokemons);
+      if (!results.has("Wasm - C")) results.set("Wasm - C", res[0]);
     },
     timesToRun,
     WasmC.wasmSize
   );
+
+  console.log();
+  console.log("first result: ", results);
 }
 
 App();

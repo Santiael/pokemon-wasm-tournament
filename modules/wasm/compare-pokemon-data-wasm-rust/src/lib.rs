@@ -54,7 +54,7 @@ impl Pokemon {
 #[wasm_bindgen]
 pub struct PokemonVictory {
     name: String,
-    pub score: i32,
+    score: i32,
 }
 
 #[wasm_bindgen]
@@ -62,6 +62,11 @@ impl PokemonVictory {
     #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         self.name.clone()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn score(&self) -> i32 {
+        self.score.clone()
     }
 }
 
@@ -125,8 +130,10 @@ pub fn rank_pokemon_victories(pokemons: &Vec<Pokemon>) -> Vec<PokemonVictory> {
 }
 
 #[wasm_bindgen]
-pub fn compare_pokemons(pokemons: Vec<Pokemon>) {
-    rank_pokemon_victories(&pokemons);
+pub fn compare_pokemons(pokemons: Vec<Pokemon>) -> Vec<PokemonVictory> {
+    let result = rank_pokemon_victories(&pokemons);
+
+    result
 }
 
 #[wasm_bindgen]
