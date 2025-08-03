@@ -2,5 +2,8 @@
     "go.toolsEnvVars": {
         "GOOS": "js",
         "GOARCH": "wasm"
-    }
+    },
+    "rust-analyzer.linkedProjects": [
+        "modules/wasm/compare-pokemon-data-wasm-rust/Cargo.toml"
+    ]
 }
