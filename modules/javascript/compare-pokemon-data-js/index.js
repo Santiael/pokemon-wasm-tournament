@@ -32,17 +32,26 @@ function isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
   return chosenPokemonPoints > rivalPokemonPoints;
 }
 
+function precomputeScores(pokemons) {
+  return pokemons.map((pokemon) => ({
+    pokemon: pokemon,
+    power: calculatePokemonPower(pokemon),
+    stamina: calculatePokemonStamina(pokemon),
+  }));
+}
+
 export function comparePokemons(pokemons) {
+  const precomputed = precomputeScores(pokemons);
   const pokemonVictoriesArray = [];
 
-  pokemons.forEach((chosenPokemon) => {
+  precomputed.forEach((chosenPokemon) => {
     const pokemonVictories = {
-      name: chosenPokemon.name,
+      name: chosenPokemon.pokemon.name,
       score: 0,
     };
 
-    pokemons.forEach((rivalPokemon) => {
-      if (isPokemonStrongerThan(chosenPokemon, rivalPokemon)) {
+    precomputed.forEach((rivalPokemon) => {
+      if ((chosenPokemon.stamina - rivalPokemon.power) > (rivalPokemon.stamina - chosenPokemon.power)) {
         pokemonVictories.score += 1;
       }
     });
