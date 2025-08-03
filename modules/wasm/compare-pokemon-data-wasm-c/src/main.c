@@ -72,17 +72,26 @@ float calculate_stamina(const Pokemon *p)
   return sum_stats(p, stam_stats, 3);
 }
 
-bool is_pokemon_stronger_than(const Pokemon *chosen, const Pokemon *rival)
+typedef struct __attribute__((packed)) PokemonWithScore
 {
-  float chosen_power = calculate_power(chosen);
-  float chosen_stamina = calculate_stamina(chosen);
-  float rival_power = calculate_power(rival);
-  float rival_stamina = calculate_stamina(rival);
+  const Pokemon *pokemon;
+  float power;
+  float stamina;
+} PokemonWithScore;
 
-  float chosen_points = chosen_stamina - rival_power;
-  float rival_points = rival_stamina - chosen_power;
+PokemonWithScore *precomputeScores(const Pokemon *pokemons, int count)
+{
+  PokemonWithScore *results = (PokemonWithScore *)malloc(sizeof(PokemonWithScore) * count);
 
-  return chosen_points > rival_points;
+  for (int i = 0; i < count; i++)
+  {
+    PokemonWithScore *result = &results[i];
+    result->pokemon = &pokemons[i];
+    result->power = calculate_power(result->pokemon);
+    result->stamina = calculate_stamina(result->pokemon);
+  }
+
+  return results;
 }
 
 int compare_victories(const void *a, const void *b)
@@ -96,22 +105,25 @@ __attribute__((export_name("compare_pokemons")))
 PokemonVictory *
 compare_pokemons(const Pokemon *pokemons, int count)
 {
+  PokemonWithScore *precomputed = precomputeScores(pokemons, count);
   PokemonVictory *results = (PokemonVictory *)malloc(sizeof(PokemonVictory) * count);
 
   for (int i = 0; i < count; i++)
   {
     PokemonVictory *result = &results[i];
-    const Pokemon *p = &pokemons[i];
+    const PokemonWithScore *p = &precomputed[i];
 
-    strcpy(result->name, p->name);
+    strcpy(result->name, p->pokemon->name);
     result->score = 0;
 
     for (int j = 0; j < count; j++)
     {
-      const Pokemon *np = &pokemons[j];
+      const PokemonWithScore *np = &precomputed[j];
 
-      if (is_pokemon_stronger_than(p, np))
+      if ((p->stamina - np->power) > (np->stamina - p->power))
+      {
         result->score++;
+      }
     }
   }
 
