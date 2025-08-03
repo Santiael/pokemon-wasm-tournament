@@ -95,31 +95,45 @@ fn calculate_pokemon_stamina(pokemon: &Pokemon) -> f64 {
     sum_pokemon_stats(pokemon, &["hp", "defense", "special-defense"])
 }
 
-fn is_pokemon_stronger_than(chosen_pokemon: &Pokemon, rival_pokemon: &Pokemon) -> bool {
-    let chosen_pokemon_power = calculate_pokemon_power(chosen_pokemon);
-    let chosen_pokemon_stamina = calculate_pokemon_stamina(chosen_pokemon);
+pub struct PokemonWithScore<'a> {
+    pokemon: &'a Pokemon,
+    power: f64,
+    stamina: f64,
+}
 
-    let rival_pokemon_power = calculate_pokemon_power(rival_pokemon);
-    let rival_pokemon_stamina = calculate_pokemon_stamina(rival_pokemon);
+fn precompute_pokemon_with_score(pokemons: &Vec<Pokemon>) -> Vec<PokemonWithScore> {
+    let mut result: Vec<PokemonWithScore> = Vec::with_capacity(pokemons.len());
 
-    let chosen_pokemon_points = chosen_pokemon_stamina - rival_pokemon_power;
-    let rival_pokemon_points = rival_pokemon_stamina - chosen_pokemon_power;
+    for pokemon in pokemons {
+        result.push(PokemonWithScore {
+            pokemon: &pokemon,
+            power: calculate_pokemon_power(&pokemon),
+            stamina: calculate_pokemon_stamina(&pokemon),
+        });
+    }
 
-    chosen_pokemon_points > rival_pokemon_points
+    result
 }
 
 pub fn rank_pokemon_victories(pokemons: &Vec<Pokemon>) -> Vec<PokemonVictory> {
-    let mut pokemon_victories_array: Vec<PokemonVictory> = Vec::new();
+    let precomputed = precompute_pokemon_with_score(&pokemons);
 
-    for chosen_pokemon in pokemons {
+    let mut pokemon_victories_array: Vec<PokemonVictory> = Vec::with_capacity(pokemons.len());
+
+    for chosen_pokemon in &precomputed {
         let mut victories: i32 = 0;
-        for rival_pokemon in pokemons {
-            if is_pokemon_stronger_than(chosen_pokemon, rival_pokemon) {
+
+        for rival_pokemon in &precomputed {
+            let is_stronger_than = (chosen_pokemon.stamina - rival_pokemon.power)
+                > (rival_pokemon.stamina - chosen_pokemon.power);
+
+            if is_stronger_than {
                 victories += 1;
             }
         }
+
         pokemon_victories_array.push(PokemonVictory {
-            name: chosen_pokemon.name.clone(),
+            name: chosen_pokemon.pokemon.name.clone(),
             score: victories,
         });
     }
