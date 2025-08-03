@@ -1,14 +1,15 @@
-import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import fs from 'node:fs';
+import path from 'node:path';
 import "./vendors/wasm_exec.js";
 
-const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
-const wasmBuffer = await readFile(resolve(CURRENT_DIR, "./main.wasm"));
+const wasmFile = path.join(import.meta.dirname, "./main.wasm");
+const wasmBuffer = await fs.promises.readFile(wasmFile);
 
 const go = new global.Go();
 const { instance } = await WebAssembly.instantiate(wasmBuffer, go.importObject);
 go.run(instance);
+
+global.wasm.wasmSize = `${((await fs.promises.stat(wasmFile)).size / 1000).toFixed(0)}KB`;
 
 export default global.wasm;
 

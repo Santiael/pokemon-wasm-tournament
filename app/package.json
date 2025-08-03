@@ -3,8 +3,9 @@
   "main": "index.js",
   "type": "module",
   "dependencies": {
-    "compare-pokemon-data-js": "workspace:../modules/javascript/compare-pokemon-data-js",
-    "compare-pokemon-data-wasm-rust": "workspace:../modules/wasm/compare-pokemon-data-wasm-rust",
-    "compare-pokemon-data-wasm-go": "workspace:../modules/wasm/compare-pokemon-data-wasm-go"
+    "compare-pokemon-data-js": "workspace:*",
+    "compare-pokemon-data-wasm-rust": "workspace:*",
+    "compare-pokemon-data-wasm-go": "workspace:*",
+    "compare-pokemon-data-wasm-c": "workspace:*"
   }
 }

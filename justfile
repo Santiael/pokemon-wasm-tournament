@@ -12,42 +12,33 @@ run:
 build-wasm:
   just build-wasm-rust
   just build-wasm-go
+  just build-wasm-c
 
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
-build-wasm-rust *FLAGS:
-  #!/usr/bin/env sh
-  set -e
-
-  verifyFlag() {
-    for flag in {{FLAGS}}; do
-      for allowed in $@; do
-        if [ $flag == $1 ]; then
-          echo true
-          break
-        fi
-      done
-    done
-  }
-
+build-wasm-rust:
   rm -rf dist
 
-  if [ $(verifyFlag --debug) ]; then
-      echo "[build-wasm] building target debug"
-      cargo build
-      target_folder="debug"
-  else
-      echo "[build-wasm] building target release"
-      cargo build --release
-      target_folder="release"
-  fi
+  echo "[build-wasm] building target release"
+  cargo build --release
 
   wasm-bindgen --target nodejs --out-dir dist \
-    "./target/wasm32-unknown-unknown/${target_folder}/compare_pokemon_data_wasm_rust.wasm"
+    "./target/wasm32-unknown-unknown/release/compare_pokemon_data_wasm_rust.wasm"
 
-  if [ ! $(verifyFlag --no-opt) ]; then
-    echo "[build-wasm] running wasm-opt"
-    wasm-opt -O3 dist/compare_pokemon_data_wasm_rust_bg.wasm -o dist/compare_pokemon_data_wasm_rust_bg.wasm
-  fi
+  echo "[build-wasm] running wasm-opt"
+  wasm-opt -O3 dist/compare_pokemon_data_wasm_rust_bg.wasm -o dist/compare_pokemon_data_wasm_rust_bg.wasm
+
+[working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
+build-wasm-rust-debug:
+  rm -rf dist
+
+  echo "[build-wasm] building target release"
+  cargo build
+
+  wasm-bindgen --target nodejs --out-dir dist \
+    "./target/wasm32-unknown-unknown/debug/compare_pokemon_data_wasm_rust.wasm"
+
+  echo "[build-wasm] running wasm-opt"
+  wasm-opt -O3 dist/compare_pokemon_data_wasm_rust_bg.wasm -o dist/compare_pokemon_data_wasm_rust_bg.wasm
 
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-go']
 build-wasm-go:
@@ -56,3 +47,8 @@ build-wasm-go:
   GOOS=js GOARCH=wasm go build -o dist/main.wasm .
   cp -r package/* dist
 
+[working-directory: 'modules/wasm/compare-pokemon-data-wasm-c']
+build-wasm-c:
+  docker pull emscripten/emsdk
+  docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk \
+    emcc ./src/main.c -o main.wasm -O3 -s EXPORTED_FUNCTIONS='["_malloc", "_free"]' -s STANDALONE_WASM --no-entry
