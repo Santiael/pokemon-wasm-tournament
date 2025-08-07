@@ -30,13 +30,13 @@ importers:
   app:
     dependencies:
       compare-pokemon-data-js:
-        specifier: workspace:../modules/javascript/compare-pokemon-data-js
+        specifier: workspace:*
         version: link:../modules/javascript/compare-pokemon-data-js
       compare-pokemon-data-wasm-go:
-        specifier: workspace:../modules/wasm/compare-pokemon-data-wasm-go
+        specifier: workspace:*
         version: link:../modules/wasm/compare-pokemon-data-wasm-go
       compare-pokemon-data-wasm-rust:
-        specifier: workspace:../modules/wasm/compare-pokemon-data-wasm-rust
+        specifier: workspace:*
         version: link:../modules/wasm/compare-pokemon-data-wasm-rust
 
   modules/javascript/compare-pokemon-data-js: {}
