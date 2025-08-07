@@ -108,11 +108,13 @@ pub fn rank_pokemon_victories(pokemons: &Vec<Pokemon>) -> Vec<PokemonVictory> {
 
     for chosen_pokemon in pokemons {
         let mut victories: i32 = 0;
+
         for rival_pokemon in pokemons {
             if is_pokemon_stronger_than(chosen_pokemon, rival_pokemon) {
                 victories += 1;
             }
         }
+
         pokemon_victories_array.push(PokemonVictory {
             name: chosen_pokemon.name.clone(),
             score: victories,

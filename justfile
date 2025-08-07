@@ -32,11 +32,11 @@ build-wasm-rust *FLAGS:
   rm -rf dist
 
   if [ $(verifyFlag --debug) ]; then
-      echo "[build-wasm] building target debug"
+      echo "[build-wasm-rust] building target debug"
       cargo build
       target_folder="debug"
   else
-      echo "[build-wasm] building target release"
+      echo "[build-wasm-rust] building target release"
       cargo build --release
       target_folder="release"
   fi
@@ -45,7 +45,7 @@ build-wasm-rust *FLAGS:
     "./target/wasm32-unknown-unknown/${target_folder}/compare_pokemon_data_wasm_rust.wasm"
 
   if [ ! $(verifyFlag --no-opt) ]; then
-    echo "[build-wasm] running wasm-opt"
+    echo "[build-wasm-rust] running wasm-opt"
     wasm-opt -O3 dist/compare_pokemon_data_wasm_rust_bg.wasm -o dist/compare_pokemon_data_wasm_rust_bg.wasm
   fi
 

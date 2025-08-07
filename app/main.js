@@ -1,11 +1,5 @@
 import { comparePokemons } from "compare-pokemon-data-js";
-import {
-  compare_pokemons,
-  // compare_pokemons_loop,
-  Pokemon,
-  PokemonStats,
-  Stat,
-} from "compare-pokemon-data-wasm-rust";
+import WasmRust from "compare-pokemon-data-wasm-rust";
 import WasmGo from "compare-pokemon-data-wasm-go";
 
 import { getPokeApiModule, pokeApiModulesUrl } from "./api.js";
@@ -44,28 +38,28 @@ async function App() {
     () => {
       const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
         const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
-          const statObj = new Stat(stat.name, stat.url);
-          return new PokemonStats(base_stat, effort, statObj);
+          const statObj = new WasmRust.Stat(stat.name, stat.url);
+          return new WasmRust.PokemonStats(base_stat, effort, statObj);
         });
-        return new Pokemon(id, name, pokemonStats);
+        return new WasmRust.Pokemon(id, name, pokemonStats);
       });
 
-      compare_pokemons(pokemonsForWasmRust);
+      WasmRust.compare_pokemons(pokemonsForWasmRust);
     },
     timesToRun
   );
 
-  // meassureTime("Wasm - Rust (loop into wasm)", () => {
-  //   const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
-  //     const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
-  //       const statObj = new Stat(stat.name, stat.url);
-  //       return new PokemonStats(base_stat, effort, statObj);
-  //     });
-  //     return new Pokemon(id, name, pokemonStats);
-  //   });
+  meassureTime("Wasm - Rust (loop into wasm)", () => {
+    const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
+      const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
+        const statObj = new WasmRust.Stat(stat.name, stat.url);
+        return new WasmRust.PokemonStats(base_stat, effort, statObj);
+      });
+      return new WasmRust.Pokemon(id, name, pokemonStats);
+    });
 
-  //   compare_pokemons_loop(pokemonsForWasmRust, timesToRun);
-  // });
+    WasmRust.compare_pokemons_loop(pokemonsForWasmRust, timesToRun);
+  });
 
   meassureTime(
     "Wasm - Go",
