@@ -28,49 +28,42 @@ type PokemonVictory struct {
 	score int
 }
 
-func decodePokemon(pokemonJs js.Value) Pokemon {
-	statsJs := pokemonJs.Get("stats")
-	statJsLength := statsJs.Length()
+func decodePokemonList(pokemonListJs js.Value) []Pokemon {
+	pokemonsListJsLength := pokemonListJs.Length()
+	pokemonList := make([]Pokemon, pokemonsListJsLength)
 
-	stats := make([]PokemonStats, 0, statJsLength)
+	for i := range pokemonsListJsLength {
+		pokemonJs := pokemonListJs.Index(i)
+		statsJs := pokemonJs.Get("stats")
+		statsJsLength := statsJs.Length()
 
-	for i := range statJsLength {
-		stat := decodePokemonStats(statsJs.Index(i))
-		stats = append(stats, stat)
+		pokemon := &pokemonList[i]
+
+		pokemon.id = pokemonJs.Get("id").Int()
+		pokemon.name = pokemonJs.Get("name").String()
+		pokemon.stats = make([]PokemonStats, statsJsLength)
+
+		for j := range statsJsLength {
+			statJs := statsJs.Index(j)
+			innerStatJs := statJs.Get("stat")
+			pokemonStats := &pokemon.stats[j]
+
+			pokemonStats.baseStat = statJs.Get("base_stat").Int()
+			pokemonStats.effort = statJs.Get("effort").Int()
+			pokemonStats.stat.name = innerStatJs.Get("name").String()
+			pokemonStats.stat.url = innerStatJs.Get("url").String()
+		}
 	}
 
-	return Pokemon{
-		id:    pokemonJs.Get("id").Int(),
-		name:  pokemonJs.Get("name").String(),
-		stats: stats,
-	}
-}
-
-func decodePokemonStats(statJs js.Value) PokemonStats {
-	innerStatJs := statJs.Get("stat")
-
-	innerStat := decodeStat(innerStatJs)
-
-	return PokemonStats{
-		baseStat: statJs.Get("base_stat").Int(),
-		effort:   statJs.Get("effort").Int(),
-		stat:     innerStat,
-	}
-}
-
-func decodeStat(statJs js.Value) Stat {
-	return Stat{
-		name: statJs.Get("name").String(),
-		url:  statJs.Get("url").String(),
-	}
+	return pokemonList
 }
 
 func sumPokemonStats(pokemon *Pokemon, statNames []string) float64 {
 	sum := 0.0
 
 	for i := range len(pokemon.stats) {
-		if slices.Contains(statNames, (*pokemon).stats[i].stat.name) {
-			sum += float64((*pokemon).stats[i].baseStat)
+		if slices.Contains(statNames, pokemon.stats[i].stat.name) {
+			sum += float64(pokemon.stats[i].baseStat)
 		}
 	}
 
@@ -109,16 +102,16 @@ func isPokemonStrongerThan(chosenPokemon, rivalPokemon *Pokemon) bool {
 	return chosenPokemonPoints > rivalPokemonPoints
 }
 
-func rankPokemonVictories(pokemons *[]Pokemon) []PokemonVictory {
-	pokemonsLength := len(*pokemons)
+func rankPokemonVictories(pokemons []Pokemon) []PokemonVictory {
+	pokemonsLength := len(pokemons)
 	pokemonVictoriesArray := make([]PokemonVictory, 0, pokemonsLength)
 
 	for i := range pokemonsLength {
-		chosenPokemon := &(*pokemons)[i]
+		chosenPokemon := &pokemons[i]
 		victories := PokemonVictory{name: chosenPokemon.name}
 
 		for j := range pokemonsLength {
-			rivalPokemon := &(*pokemons)[j]
+			rivalPokemon := &pokemons[j]
 			if isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
 				victories.score++
 			}
@@ -135,17 +128,7 @@ func rankPokemonVictories(pokemons *[]Pokemon) []PokemonVictory {
 }
 
 func comparePokemons(_ js.Value, args []js.Value) any {
-	pokemonsJs := args[0]
-	pokemonsJsLength := pokemonsJs.Length()
-	pokemons := make([]Pokemon, 0, pokemonsJsLength)
-
-	for i := range pokemonsJsLength {
-		pokemonJS := pokemonsJs.Index(i)
-		pokemon := decodePokemon(pokemonJS)
-		pokemons = append(pokemons, pokemon)
-	}
-
-	rankPokemonVictories(&pokemons)
+	rankPokemonVictories(decodePokemonList(args[0]))
 
 	return nil
 }
