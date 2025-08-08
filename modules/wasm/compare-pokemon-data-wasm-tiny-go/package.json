@@ -1,0 +1,8 @@
+{
+  "name": "compare-pokemon-data-wasm-tiny-go",
+  "main": "dist/main.js",
+  "type": "module",
+  "files": [
+    "dist/"
+  ]
+}

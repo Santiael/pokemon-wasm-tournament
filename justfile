@@ -14,6 +14,7 @@ run:
 build-wasm:
   just build-wasm-rust
   just build-wasm-go
+  just build-wasm-tiny-go
 
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
 build-wasm-rust *FLAGS:
@@ -51,6 +52,23 @@ build-wasm-go *FLAGS:
 
   echo "[build-wasm-go] building"
   GOOS=js GOARCH=wasm go build -o dist/main.wasm .
+  cp -r package/* dist
+
+  if [ ! $(verifyFlag --no-opt) ]; then
+    echo "[build-wasm-go] running wasm-opt"
+    wasm-opt --enable-bulk-memory-opt -O3 dist/main.wasm -o dist/main.wasm
+  fi
+
+[working-directory: 'modules/wasm/compare-pokemon-data-wasm-tiny-go']
+build-wasm-tiny-go *FLAGS:
+  #!/usr/bin/env sh
+  source {{JUST_DIR}}/verify_flag.sh
+  FLAGS={{FLAGS}}
+
+  rm -rf dist
+
+  echo "[build-wasm-tiny-go] building"
+  GOOS=js GOARCH=wasm tinygo build -o dist/main.wasm ../compare-pokemon-data-wasm-go/main.go
   cp -r package/* dist
 
   if [ ! $(verifyFlag --no-opt) ]; then

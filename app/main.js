@@ -1,6 +1,7 @@
 import { comparePokemons } from "compare-pokemon-data-js";
 import WasmRust from "compare-pokemon-data-wasm-rust";
 import WasmGo from "compare-pokemon-data-wasm-go";
+import WasmTinyGo from "compare-pokemon-data-wasm-tiny-go";
 
 import { getPokeApiModule, pokeApiModulesUrl } from "./api.js";
 
@@ -65,6 +66,14 @@ async function App() {
     "Wasm - Go",
     () => {
       WasmGo.comparePokemons(pokemons);
+    },
+    timesToRun
+  );
+
+  meassureTime(
+    "Wasm - Tiny Go",
+    () => {
+      WasmTinyGo.comparePokemons(pokemons);
     },
     timesToRun
   );

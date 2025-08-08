@@ -38,12 +38,17 @@ importers:
       compare-pokemon-data-wasm-rust:
         specifier: workspace:*
         version: link:../modules/wasm/compare-pokemon-data-wasm-rust
+      compare-pokemon-data-wasm-tiny-go:
+        specifier: workspace:*
+        version: link:../modules/wasm/compare-pokemon-data-wasm-tiny-go
 
   modules/javascript/compare-pokemon-data-js: {}
 
   modules/wasm/compare-pokemon-data-wasm-go: {}
 
   modules/wasm/compare-pokemon-data-wasm-rust: {}
+
+  modules/wasm/compare-pokemon-data-wasm-tiny-go: {}
 
 packages:
 

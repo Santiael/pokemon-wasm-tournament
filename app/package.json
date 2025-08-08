@@ -5,6 +5,7 @@
   "dependencies": {
     "compare-pokemon-data-js": "workspace:*",
     "compare-pokemon-data-wasm-rust": "workspace:*",
-    "compare-pokemon-data-wasm-go": "workspace:*"
+    "compare-pokemon-data-wasm-go": "workspace:*",
+    "compare-pokemon-data-wasm-tiny-go": "workspace:*"
   }
 }
