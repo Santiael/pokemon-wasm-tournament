@@ -108,20 +108,20 @@ func rankPokemonVictories(pokemons *[]Pokemon) []PokemonVictory {
 
 	for i := range pokemonsLength {
 		chosenPokemon := &(*pokemons)[i]
-		victories := 0
+		pokemonVictories := PokemonVictory{
+			name:  chosenPokemon.name,
+			score: 0,
+		}
 
 		for j := range pokemonsLength {
 			rivalPokemon := &(*pokemons)[j]
 
 			if isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
-				victories += 1
+				pokemonVictories.score += 1
 			}
 		}
 
-		pokemonVictoriesArray = append(pokemonVictoriesArray, PokemonVictory{
-			name:  chosenPokemon.name,
-			score: victories,
-		})
+		pokemonVictoriesArray = append(pokemonVictoriesArray, pokemonVictories)
 	}
 
 	sort.Slice(pokemonVictoriesArray, func(i, j int) bool {

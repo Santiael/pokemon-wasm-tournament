@@ -2,16 +2,17 @@ use wasm_bindgen::prelude::*;
 
 #[allow(dead_code)]
 #[wasm_bindgen]
-pub struct Stat {
+pub struct Pokemon {
+    id: u32,
     name: String,
-    url: String,
+    stats: Vec<PokemonStats>,
 }
 
 #[wasm_bindgen]
-impl Stat {
+impl Pokemon {
     #[wasm_bindgen(constructor)]
-    pub fn new(name: String, url: String) -> Stat {
-        Stat { name, url }
+    pub fn new(id: u32, name: String, stats: Vec<PokemonStats>) -> Pokemon {
+        Pokemon { id, name, stats }
     }
 }
 
@@ -37,17 +38,16 @@ impl PokemonStats {
 
 #[allow(dead_code)]
 #[wasm_bindgen]
-pub struct Pokemon {
-    id: u32,
+pub struct Stat {
     name: String,
-    stats: Vec<PokemonStats>,
+    url: String,
 }
 
 #[wasm_bindgen]
-impl Pokemon {
+impl Stat {
     #[wasm_bindgen(constructor)]
-    pub fn new(id: u32, name: String, stats: Vec<PokemonStats>) -> Pokemon {
-        Pokemon { id, name, stats }
+    pub fn new(name: String, url: String) -> Stat {
+        Stat { name, url }
     }
 }
 
@@ -107,18 +107,18 @@ pub fn rank_pokemon_victories(pokemons: &Vec<Pokemon>) -> Vec<PokemonVictory> {
     let mut pokemon_victories_array: Vec<PokemonVictory> = Vec::new();
 
     for chosen_pokemon in pokemons {
-        let mut victories: i32 = 0;
+        let mut pokemon_victories = PokemonVictory {
+            name: chosen_pokemon.name.clone(),
+            score: 0,
+        };
 
         for rival_pokemon in pokemons {
             if is_pokemon_stronger_than(chosen_pokemon, rival_pokemon) {
-                victories += 1;
+                pokemon_victories.score += 1;
             }
         }
 
-        pokemon_victories_array.push(PokemonVictory {
-            name: chosen_pokemon.name.clone(),
-            score: victories,
-        });
+        pokemon_victories_array.push(pokemon_victories);
     }
 
     pokemon_victories_array.sort_by(|a, b| b.score.cmp(&a.score));
