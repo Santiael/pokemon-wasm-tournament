@@ -1,3 +1,5 @@
+JUST_DIR:= source_dir()+"/cli/just"
+
 [private]
 @default:
   just --list --unsorted
@@ -16,18 +18,8 @@ build-wasm:
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-rust']
 build-wasm-rust *FLAGS:
   #!/usr/bin/env sh
-  set -e
-
-  verifyFlag() {
-    for flag in {{FLAGS}}; do
-      for allowed in $@; do
-        if [ $flag == $1 ]; then
-          echo true
-          break
-        fi
-      done
-    done
-  }
+  source {{JUST_DIR}}/verify_flag.sh
+  FLAGS={{FLAGS}}
 
   rm -rf dist
 
@@ -50,9 +42,18 @@ build-wasm-rust *FLAGS:
   fi
 
 [working-directory: 'modules/wasm/compare-pokemon-data-wasm-go']
-build-wasm-go:
+build-wasm-go *FLAGS:
+  #!/usr/bin/env sh
+  source {{JUST_DIR}}/verify_flag.sh
+  FLAGS={{FLAGS}}
+
   rm -rf dist
 
+  echo "[build-wasm-go] building"
   GOOS=js GOARCH=wasm go build -o dist/main.wasm .
   cp -r package/* dist
 
+  if [ ! $(verifyFlag --no-opt) ]; then
+    echo "[build-wasm-go] running wasm-opt"
+    wasm-opt --enable-bulk-memory-opt -O3 dist/main.wasm -o dist/main.wasm
+  fi
