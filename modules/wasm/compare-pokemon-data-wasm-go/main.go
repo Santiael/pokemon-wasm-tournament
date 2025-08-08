@@ -102,16 +102,16 @@ func isPokemonStrongerThan(chosenPokemon, rivalPokemon *Pokemon) bool {
 	return chosenPokemonPoints > rivalPokemonPoints
 }
 
-func rankPokemonVictories(pokemons []Pokemon) []PokemonVictory {
-	pokemonsLength := len(pokemons)
+func rankPokemonVictories(pokemons *[]Pokemon) []PokemonVictory {
+	pokemonsLength := len(*pokemons)
 	pokemonVictoriesArray := make([]PokemonVictory, 0)
 
 	for i := range pokemonsLength {
-		chosenPokemon := &pokemons[i]
+		chosenPokemon := &(*pokemons)[i]
 		victories := 0
 
 		for j := range pokemonsLength {
-			rivalPokemon := &pokemons[j]
+			rivalPokemon := &(*pokemons)[j]
 
 			if isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
 				victories += 1
@@ -132,7 +132,8 @@ func rankPokemonVictories(pokemons []Pokemon) []PokemonVictory {
 }
 
 func comparePokemons(_ js.Value, args []js.Value) any {
-	rankPokemonVictories(decodePokemonList(args[0]))
+	pokemons := decodePokemonList(args[0])
+	rankPokemonVictories(&pokemons)
 
 	return nil
 }
