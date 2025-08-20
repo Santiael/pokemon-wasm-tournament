@@ -52,13 +52,13 @@ impl Stat {
 }
 
 #[wasm_bindgen]
-pub struct PokemonVictory {
+pub struct PokemonScore {
     name: String,
     pub score: i32,
 }
 
 #[wasm_bindgen]
-impl PokemonVictory {
+impl PokemonScore {
     #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         self.name.clone()
@@ -90,50 +90,70 @@ fn calculate_pokemon_stamina(pokemon: &Pokemon) -> f64 {
     sum_pokemon_stats(pokemon, &["hp", "defense", "special-defense"])
 }
 
-fn is_pokemon_stronger_than(chosen_pokemon: &Pokemon, rival_pokemon: &Pokemon) -> bool {
-    let chosen_pokemon_power = calculate_pokemon_power(chosen_pokemon);
-    let chosen_pokemon_stamina = calculate_pokemon_stamina(chosen_pokemon);
+struct PokemonStrength<'a> {
+    name: &'a String,
+    power: f64,
+    stamina: f64,
+}
 
-    let rival_pokemon_power = calculate_pokemon_power(rival_pokemon);
-    let rival_pokemon_stamina = calculate_pokemon_stamina(rival_pokemon);
+fn calculate_pokemon_strength(pokemon: &Pokemon) -> PokemonStrength {
+    PokemonStrength {
+        name: &pokemon.name,
+        power: calculate_pokemon_power(pokemon),
+        stamina: calculate_pokemon_stamina(pokemon),
+    }
+}
 
-    let chosen_pokemon_points = chosen_pokemon_stamina - rival_pokemon_power;
-    let rival_pokemon_points = rival_pokemon_stamina - chosen_pokemon_power;
+fn is_pokemon_stronger_than(
+    chosen_pokemon: &PokemonStrength,
+    rival_pokemon: &PokemonStrength,
+) -> bool {
+    let chosen_pokemon_points = chosen_pokemon.stamina - rival_pokemon.power;
+    let rival_pokemon_points = rival_pokemon.stamina - chosen_pokemon.power;
 
     chosen_pokemon_points > rival_pokemon_points
 }
 
-pub fn rank_pokemon_victories(pokemons: &Vec<Pokemon>) -> Vec<PokemonVictory> {
-    let mut pokemon_victories_array: Vec<PokemonVictory> = Vec::new();
+pub fn rank_pokemons_by_score(pokemons: &Vec<Pokemon>) -> Vec<PokemonScore> {
+    let pokemons_strength: Vec<PokemonStrength> =
+        pokemons.iter().map(calculate_pokemon_strength).collect();
 
-    for chosen_pokemon in pokemons {
-        let mut pokemon_victories = PokemonVictory {
-            name: chosen_pokemon.name.clone(),
-            score: 0,
-        };
+    let mut pokemons_scores: Vec<PokemonScore> = pokemons_strength
+        .iter()
+        .map(|chosen_pokemon| {
+            let mut score = 0;
 
-        for rival_pokemon in pokemons {
-            if is_pokemon_stronger_than(chosen_pokemon, rival_pokemon) {
-                pokemon_victories.score += 1;
+            for rival_pokemon in &pokemons_strength {
+                if is_pokemon_stronger_than(chosen_pokemon, rival_pokemon) {
+                    score += 1;
+                }
             }
-        }
 
-        pokemon_victories_array.push(pokemon_victories);
+            PokemonScore {
+                name: chosen_pokemon.name.clone(),
+                score,
+            }
+        })
+        .collect();
+
+    pokemons_scores.sort_by(|a, b| b.score.cmp(&a.score));
+
+    pokemons_scores
+}
+
+#[wasm_bindgen]
+pub struct Runner {
+    pokemons: Vec<Pokemon>,
+}
+
+#[wasm_bindgen]
+impl Runner {
+    #[wasm_bindgen(constructor)]
+    pub fn new(pokemons: Vec<Pokemon>) -> Runner {
+        Runner { pokemons }
     }
 
-    pokemon_victories_array.sort_by(|a, b| b.score.cmp(&a.score));
-
-    pokemon_victories_array
-}
-
-#[wasm_bindgen]
-pub fn compare_pokemons(pokemons: Vec<Pokemon>) {
-    rank_pokemon_victories(&pokemons);
-}
-
-#[wasm_bindgen]
-pub fn compare_pokemons_loop(pokemons: Vec<Pokemon>, times: i32) {
-    for _ in 0..times {
-        rank_pokemon_victories(&pokemons);
+    pub fn compare_pokemons(&self) {
+        rank_pokemons_by_score(&self.pokemons);
     }
 }

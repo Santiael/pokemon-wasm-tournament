@@ -19,40 +19,38 @@ function calculatePokemonStamina(pokemon) {
   return sumPokemonStats(pokemon, ["hp", "defense", "special-defense"]);
 }
 
+function calculatePokemonStrength(pokemon) {
+  return {
+    name: pokemon.name,
+    power: calculatePokemonPower(pokemon),
+    stamina: calculatePokemonStamina(pokemon),
+  };
+}
+
 function isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
-  const chosenPokemonPower = calculatePokemonPower(chosenPokemon);
-  const chosenPokemonStamina = calculatePokemonStamina(chosenPokemon);
-
-  const rivalPokemonPower = calculatePokemonPower(rivalPokemon);
-  const rivalPokemonStamina = calculatePokemonStamina(rivalPokemon);
-
-  const chosenPokemonPoints = chosenPokemonStamina - rivalPokemonPower;
-  const rivalPokemonPoints = rivalPokemonStamina - chosenPokemonPower;
+  const chosenPokemonPoints = chosenPokemon.stamina - rivalPokemon.power;
+  const rivalPokemonPoints = rivalPokemon.stamina - chosenPokemon.power;
 
   return chosenPokemonPoints > rivalPokemonPoints;
 }
 
 export function comparePokemons(pokemons) {
-  const pokemonVictoriesArray = [];
+  const pokemonsStrength = pokemons.map(calculatePokemonStrength);
 
-  pokemons.forEach((chosenPokemon) => {
-    const pokemonVictories = {
-      name: chosenPokemon.name,
-      score: 0,
-    };
+  const pokemonsScores = pokemonsStrength.map((chosenPokemon) => {
+    let score = 0;
 
-    pokemons.forEach((rivalPokemon) => {
-      if (isPokemonStrongerThan(chosenPokemon, rivalPokemon)) {
-        pokemonVictories.score += 1;
-      }
+    pokemonsStrength.forEach((rivalPokemon) => {
+      if (isPokemonStrongerThan(chosenPokemon, rivalPokemon)) score++;
     });
 
-    pokemonVictoriesArray.push(pokemonVictories);
+    return {
+      name: chosenPokemon.name,
+      score,
+    };
   });
 
-  const orderedPokemonVictoriesArray = pokemonVictoriesArray.sort(
-    (a, b) => b.score - a.score
-  );
+  const PokemonsByScore = pokemonsScores.sort((a, b) => b.score - a.score);
 
-  return orderedPokemonVictoriesArray;
+  return PokemonsByScore;
 }

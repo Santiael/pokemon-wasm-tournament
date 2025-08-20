@@ -23,7 +23,7 @@ type Stat struct {
 	url  string
 }
 
-type PokemonVictory struct {
+type PokemonScore struct {
 	name  string
 	score int
 }
@@ -89,51 +89,70 @@ func calculatePokemonStamina(pokemon *Pokemon) float64 {
 	return sumPokemonStats(pokemon, []string{"hp", "defense", "special-defense"})
 }
 
-func isPokemonStrongerThan(chosenPokemon, rivalPokemon *Pokemon) bool {
-	chosenPokemonPower := calculatePokemonPower(chosenPokemon)
-	chosenPokemonStamina := calculatePokemonStamina(chosenPokemon)
+type PokemonStrength struct {
+	name    string
+	power   float64
+	stamina float64
+}
 
-	rivalPokemonPower := calculatePokemonPower(rivalPokemon)
-	rivalPokemonStamina := calculatePokemonStamina(rivalPokemon)
+func CalculatePokemonStrength(pokemon *Pokemon) PokemonStrength {
+	return PokemonStrength{
+		name:    pokemon.name,
+		power:   calculatePokemonPower(pokemon),
+		stamina: calculatePokemonStamina(pokemon),
+	}
+}
 
-	chosenPokemonPoints := chosenPokemonStamina - rivalPokemonPower
-	rivalPokemonPoints := rivalPokemonStamina - chosenPokemonPower
+func IsPokemonStrongerThan(chosenPokemon, rivalPokemon *PokemonStrength) bool {
+	chosenPokemonPoints := chosenPokemon.stamina - rivalPokemon.power
+	rivalPokemonPoints := rivalPokemon.stamina - chosenPokemon.power
 
 	return chosenPokemonPoints > rivalPokemonPoints
 }
 
-func rankPokemonVictories(pokemons *[]Pokemon) []PokemonVictory {
-	pokemonsLength := len(*pokemons)
-	pokemonVictoriesArray := make([]PokemonVictory, 0)
+func rankPokemonsByScore(pokemons *[]Pokemon) []PokemonScore {
+	pokemonsStrength := make([]PokemonStrength, len(*pokemons))
 
-	for i := range pokemonsLength {
-		chosenPokemon := &(*pokemons)[i]
-		pokemonVictories := PokemonVictory{
-			name:  chosenPokemon.name,
-			score: 0,
-		}
+	for i, p := range *pokemons {
+		pokemonsStrength[i] = CalculatePokemonStrength(&p)
+	}
 
-		for j := range pokemonsLength {
-			rivalPokemon := &(*pokemons)[j]
+	pokemonScores := make([]PokemonScore, len(pokemonsStrength))
 
-			if isPokemonStrongerThan(chosenPokemon, rivalPokemon) {
-				pokemonVictories.score += 1
+	for i := range pokemonsStrength {
+		chosenPokemon := &pokemonsStrength[i]
+		score := 0
+
+		for j := range pokemonsStrength {
+			rivalPokemon := &pokemonsStrength[j]
+			if IsPokemonStrongerThan(chosenPokemon, rivalPokemon) {
+				score++
 			}
 		}
 
-		pokemonVictoriesArray = append(pokemonVictoriesArray, pokemonVictories)
+		pokemonScores[i] = PokemonScore{
+			name:  chosenPokemon.name,
+			score: score,
+		}
 	}
 
-	sort.Slice(pokemonVictoriesArray, func(i, j int) bool {
-		return pokemonVictoriesArray[i].score > pokemonVictoriesArray[j].score
+	sort.Slice(pokemonScores, func(i, j int) bool {
+		return pokemonScores[i].score > pokemonScores[j].score
 	})
 
-	return pokemonVictoriesArray
+	return pokemonScores
 }
 
-func comparePokemons(_ js.Value, args []js.Value) any {
-	pokemons := decodePokemonList(args[0])
-	rankPokemonVictories(&pokemons)
+var pokemons []Pokemon
+
+func preparePokemonsData(_ js.Value, args []js.Value) any {
+	pokemons = decodePokemonList(args[0])
+
+	return nil
+}
+
+func comparePokemons(_ js.Value, _ []js.Value) any {
+	rankPokemonsByScore(&pokemons)
 
 	return nil
 }
@@ -141,6 +160,7 @@ func comparePokemons(_ js.Value, args []js.Value) any {
 func main() {
 	wasmObject := js.Global().Get("Object").New()
 
+	wasmObject.Set("preparePokemonsData", js.FuncOf(preparePokemonsData))
 	wasmObject.Set("comparePokemons", js.FuncOf(comparePokemons))
 
 	js.Global().Set("wasm", wasmObject)

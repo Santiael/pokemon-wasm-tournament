@@ -13,9 +13,9 @@ type Pokemon = {
   stats: Array<PokemonStats>;
 }
 
-type PokemonVictories = {
+type PokemonScore = {
   name: string;
   score: number;
 }
 
-export function comparePokemons(pokemons: Pokemon[]): PokemonVictories[];
+export function comparePokemons(pokemons: Pokemon[]): PokemonScore[];

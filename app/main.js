@@ -22,9 +22,13 @@ function meassureTime(label, callback, timesToRun = 1) {
   }
 }
 
+function divisor() {
+  console.log(`--------------------`);
+}
+
 async function App() {
   const pokemons = await getPokeApiModule(pokeApiModulesUrl.pokemon);
-  const timesToRun = 10;
+  const timesToRun = 1000;
 
   meassureTime(
     "JS",
@@ -34,23 +38,11 @@ async function App() {
     timesToRun
   );
 
-  meassureTime(
-    "Wasm - Rust",
-    () => {
-      const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
-        const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
-          const statObj = new WasmRust.Stat(stat.name, stat.url);
-          return new WasmRust.PokemonStats(base_stat, effort, statObj);
-        });
-        return new WasmRust.Pokemon(id, name, pokemonStats);
-      });
+  divisor(); // ***** Wasm Rust *****
 
-      WasmRust.compare_pokemons(pokemonsForWasmRust);
-    },
-    timesToRun
-  );
+  let WasmRustRunner;
 
-  meassureTime("Wasm - Rust (loop into wasm)", () => {
+  meassureTime("Preparing Data for Wasm Rust", () => {
     const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
       const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
         const statObj = new WasmRust.Stat(stat.name, stat.url);
@@ -59,16 +51,36 @@ async function App() {
       return new WasmRust.Pokemon(id, name, pokemonStats);
     });
 
-    WasmRust.compare_pokemons_loop(pokemonsForWasmRust, timesToRun);
+    WasmRustRunner = new WasmRust.Runner(pokemonsForWasmRust);
+  });
+
+  meassureTime(
+    "Wasm - Rust",
+    () => {
+      WasmRustRunner.compare_pokemons();
+    },
+    timesToRun
+  );
+
+  divisor(); // ***** Wasm Go *****
+
+  meassureTime("Preparing Data for Wasm Go", () => {
+    WasmGo.preparePokemonsData(pokemons);
   });
 
   meassureTime(
     "Wasm - Go",
     () => {
-      WasmGo.comparePokemons(pokemons);
+      WasmGo.comparePokemons();
     },
     timesToRun
   );
+
+  divisor(); // ***** Wasm Tiny Go *****
+
+  meassureTime("Preparing Data for Wasm Tiny Go", () => {
+    WasmTinyGo.preparePokemonsData(pokemons);
+  });
 
   meassureTime(
     "Wasm - Tiny Go",
