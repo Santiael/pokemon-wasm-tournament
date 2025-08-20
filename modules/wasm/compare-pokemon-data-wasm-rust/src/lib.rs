@@ -1,68 +1,27 @@
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
-#[allow(dead_code)]
-#[wasm_bindgen]
+#[derive(Deserialize)]
 pub struct Pokemon {
-    id: u32,
     name: String,
     stats: Vec<PokemonStats>,
 }
 
-#[wasm_bindgen]
-impl Pokemon {
-    #[wasm_bindgen(constructor)]
-    pub fn new(id: u32, name: String, stats: Vec<PokemonStats>) -> Pokemon {
-        Pokemon { id, name, stats }
-    }
-}
-
-#[allow(dead_code)]
-#[wasm_bindgen]
+#[derive(Deserialize)]
 pub struct PokemonStats {
     base_stat: u32,
-    effort: u32,
     stat: Stat,
 }
 
-#[wasm_bindgen]
-impl PokemonStats {
-    #[wasm_bindgen(constructor)]
-    pub fn new(base_stat: u32, effort: u32, stat: Stat) -> PokemonStats {
-        PokemonStats {
-            base_stat,
-            effort,
-            stat,
-        }
-    }
-}
-
-#[allow(dead_code)]
-#[wasm_bindgen]
+#[derive(Deserialize)]
 pub struct Stat {
     name: String,
-    url: String,
 }
 
-#[wasm_bindgen]
-impl Stat {
-    #[wasm_bindgen(constructor)]
-    pub fn new(name: String, url: String) -> Stat {
-        Stat { name, url }
-    }
-}
-
-#[wasm_bindgen]
+#[derive(Serialize)]
 pub struct PokemonScore {
     name: String,
     pub score: i32,
-}
-
-#[wasm_bindgen]
-impl PokemonScore {
-    #[wasm_bindgen(getter)]
-    pub fn name(&self) -> String {
-        self.name.clone()
-    }
 }
 
 fn sum_pokemon_stats(pokemon: &Pokemon, stat_names: &[&str]) -> f64 {
@@ -149,11 +108,13 @@ pub struct Runner {
 #[wasm_bindgen]
 impl Runner {
     #[wasm_bindgen(constructor)]
-    pub fn new(pokemons: Vec<Pokemon>) -> Runner {
-        Runner { pokemons }
+    pub fn new(pokemons_js: JsValue) -> Result<Runner, JsValue> {
+        let pokemons: Vec<Pokemon> = serde_wasm_bindgen::from_value(pokemons_js)?;
+        Ok(Runner { pokemons })
     }
 
-    pub fn compare_pokemons(&self) {
-        rank_pokemons_by_score(&self.pokemons);
+    pub fn compare_pokemons(&self) -> Result<JsValue, JsValue> {
+        let scores = rank_pokemons_by_score(&self.pokemons);
+        Ok(serde_wasm_bindgen::to_value(&scores)?)
     }
 }

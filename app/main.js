@@ -28,7 +28,7 @@ function divisor() {
 
 async function App() {
   const pokemons = await getPokeApiModule(pokeApiModulesUrl.pokemon);
-  const timesToRun = 1000;
+  const timesToRun = 100;
 
   meassureTime(
     "JS",
@@ -43,15 +43,7 @@ async function App() {
   let WasmRustRunner;
 
   meassureTime("Preparing Data for Wasm Rust", () => {
-    const pokemonsForWasmRust = pokemons.map(({ id, name, stats }) => {
-      const pokemonStats = stats.map(({ base_stat, effort, stat }) => {
-        const statObj = new WasmRust.Stat(stat.name, stat.url);
-        return new WasmRust.PokemonStats(base_stat, effort, statObj);
-      });
-      return new WasmRust.Pokemon(id, name, pokemonStats);
-    });
-
-    WasmRustRunner = new WasmRust.Runner(pokemonsForWasmRust);
+    WasmRustRunner = new WasmRust.Runner(pokemons);
   });
 
   meassureTime(
