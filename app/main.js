@@ -54,10 +54,12 @@ async function App() {
     timesToRun
   );
 
+  WasmRustRunner?.free();
+
   divisor(); // ***** Wasm Go *****
 
   meassureTime("Preparing Data for Wasm Go", () => {
-    WasmGo.preparePokemonsData(pokemons);
+    WasmGo.allocPokemonsData(pokemons);
   });
 
   meassureTime(
@@ -68,10 +70,12 @@ async function App() {
     timesToRun
   );
 
+  WasmGo.freePokemonsData();
+
   divisor(); // ***** Wasm Tiny Go *****
 
   meassureTime("Preparing Data for Wasm Tiny Go", () => {
-    WasmTinyGo.preparePokemonsData(pokemons);
+    WasmTinyGo.allocPokemonsData(pokemons);
   });
 
   meassureTime(
@@ -81,6 +85,8 @@ async function App() {
     },
     timesToRun
   );
+
+  WasmTinyGo.freePokemonsData();
 }
 
 App();

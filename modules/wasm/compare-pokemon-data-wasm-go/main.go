@@ -159,8 +159,14 @@ func rankPokemonsByScore(pokemons *[]Pokemon) []PokemonScore {
 
 var pokemons []Pokemon
 
-func preparePokemonsData(_ js.Value, args []js.Value) any {
+func allocPokemonsData(_ js.Value, args []js.Value) any {
 	pokemons = decodePokemons(args[0])
+
+	return nil
+}
+
+func freePokemonsData(_ js.Value, _ []js.Value) any {
+	pokemons = nil
 
 	return nil
 }
@@ -172,12 +178,13 @@ func comparePokemons(_ js.Value, _ []js.Value) any {
 }
 
 func main() {
-	export := js.Global().Get("Object").New()
+	module := js.Global().Get("Object").New()
 
-	export.Set("preparePokemonsData", js.FuncOf(preparePokemonsData))
-	export.Set("comparePokemons", js.FuncOf(comparePokemons))
+	module.Set("allocPokemonsData", js.FuncOf(allocPokemonsData))
+	module.Set("freePokemonsData", js.FuncOf(freePokemonsData))
+	module.Set("comparePokemons", js.FuncOf(comparePokemons))
 
-	js.Global().Set("wasm", export)
+	js.Global().Set("wasm", module)
 
 	<-make(chan struct{})
 }
