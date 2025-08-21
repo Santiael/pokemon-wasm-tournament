@@ -7,20 +7,17 @@ import (
 )
 
 type Pokemon struct {
-	id    int
 	name  string
 	stats []PokemonStats
 }
 
 type PokemonStats struct {
 	baseStat int
-	effort   int
 	stat     Stat
 }
 
 type Stat struct {
 	name string
-	url  string
 }
 
 type PokemonScore struct {
@@ -39,7 +36,6 @@ func decodePokemons(pokemonListJs js.Value) []Pokemon {
 
 		pokemon := &pokemonList[i]
 
-		pokemon.id = pokemonJs.Get("id").Int()
 		pokemon.name = pokemonJs.Get("name").String()
 		pokemon.stats = make([]PokemonStats, statsJsLength)
 
@@ -49,9 +45,7 @@ func decodePokemons(pokemonListJs js.Value) []Pokemon {
 			pokemonStats := &pokemon.stats[j]
 
 			pokemonStats.baseStat = statJs.Get("base_stat").Int()
-			pokemonStats.effort = statJs.Get("effort").Int()
 			pokemonStats.stat.name = innerStatJs.Get("name").String()
-			pokemonStats.stat.url = innerStatJs.Get("url").String()
 		}
 	}
 
