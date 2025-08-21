@@ -28,7 +28,7 @@ type PokemonScore struct {
 	score int
 }
 
-func decodePokemonList(pokemonListJs js.Value) []Pokemon {
+func decodePokemons(pokemonListJs js.Value) []Pokemon {
 	pokemonsListJsLength := pokemonListJs.Length()
 	pokemonList := make([]Pokemon, pokemonsListJsLength)
 
@@ -56,6 +56,20 @@ func decodePokemonList(pokemonListJs js.Value) []Pokemon {
 	}
 
 	return pokemonList
+}
+
+func encodePokemonsScore(pokemonsScore []PokemonScore) js.Value {
+	global := js.Global()
+	jsArray := global.Get("Array").New(len(pokemonsScore))
+
+	for i, pokemonScore := range pokemonsScore {
+		pokemonScoreJs := global.Get("Object").New()
+		pokemonScoreJs.Set("name", pokemonScore.name)
+		pokemonScoreJs.Set("score", pokemonScore.score)
+		jsArray.SetIndex(i, pokemonScoreJs)
+	}
+
+	return jsArray
 }
 
 func sumPokemonStats(pokemon *Pokemon, statNames []string) float64 {
@@ -146,24 +160,24 @@ func rankPokemonsByScore(pokemons *[]Pokemon) []PokemonScore {
 var pokemons []Pokemon
 
 func preparePokemonsData(_ js.Value, args []js.Value) any {
-	pokemons = decodePokemonList(args[0])
+	pokemons = decodePokemons(args[0])
 
 	return nil
 }
 
 func comparePokemons(_ js.Value, _ []js.Value) any {
-	rankPokemonsByScore(&pokemons)
+	pokemonsRank := rankPokemonsByScore(&pokemons)
 
-	return nil
+	return encodePokemonsScore(pokemonsRank)
 }
 
 func main() {
-	wasmObject := js.Global().Get("Object").New()
+	export := js.Global().Get("Object").New()
 
-	wasmObject.Set("preparePokemonsData", js.FuncOf(preparePokemonsData))
-	wasmObject.Set("comparePokemons", js.FuncOf(comparePokemons))
+	export.Set("preparePokemonsData", js.FuncOf(preparePokemonsData))
+	export.Set("comparePokemons", js.FuncOf(comparePokemons))
 
-	js.Global().Set("wasm", wasmObject)
+	js.Global().Set("wasm", export)
 
 	<-make(chan struct{})
 }

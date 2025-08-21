@@ -114,7 +114,7 @@ impl Runner {
     }
 
     pub fn compare_pokemons(&self) -> Result<JsValue, JsValue> {
-        let scores = rank_pokemons_by_score(&self.pokemons);
-        Ok(serde_wasm_bindgen::to_value(&scores)?)
+        let pokemon_rank = rank_pokemons_by_score(&self.pokemons);
+        Ok(serde_wasm_bindgen::to_value(&pokemon_rank)?)
     }
 }
